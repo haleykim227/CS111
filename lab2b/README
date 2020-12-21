@@ -1,0 +1,97 @@
+NAME: Seungwon Kim
+EMAIL: haleykim@g.ucla.edu
+ID: 405111152
+
+Questions and Answers:
+
+Question 2.3.1:
+	 Most CPU cycles are probably spent performing list operations. Synchronization
+	 should not be too big of an issue, and locks should be readily available with
+	 1-2 threads.
+
+	 The list operations are the most expensive only because the more expensive lock
+	 operations are not present much with 1-2 threads.
+
+	 In the high-thread spin-lock tests, most CPU time is spent waiting to obtain the
+	 spin-locks.
+
+	 In the high-thread mutex tests, most CPU time is spent on context switches and
+	 overhead due to the expensive mutex operations.
+
+Question 2.3.2:
+------------------------------------------------------------------------------------
+	   .      .  139:       clock_gettime(CLOCK_MONOTONIC, &begin);
+   488    488  140:       while(__sync_lock_test_and_set(&locks[hash_nums[i]], 1));
+     .      .  141:       clock_gettime(CLOCK_MONOTONIC, &end);
+------------------------------------------------------------------------------------
+
+	As it can be seen from the above snippet of profile.out, the lines of code
+	involving obtaining the spin-lock consume most of the CPU time. This time only
+	grows larger with an increasing number of threads.
+
+	With a larger number of threads, more threads are now competing for the spin-locks,
+	increasing the time spent by the CPU in waiting for the locks to become available.
+
+Question 2.3.3:
+	 The average lock-wait time rises dramatically with the number of contending
+	 threads because the threads attempting to access the same resource are all
+	 forced to wait. More competition leads to longer wait times.
+
+	 The completion time per operation rises less dramatically because there is always
+	 at least one thread making progress while the others may be halted.
+
+	 The completion time clock is kept by the parent thread. However, the wait time
+	 is kept per thread, which means that wait times can overlap while completion time
+	 cannot. Thus, the average lock-wait time will eventually rise more dramatically
+	 than the completion time.
+
+Question 2.3.4:
+	 As the number of threads increase, throughput increases and performance improves.
+
+	 Throughput will continue increasing but the rate of increase will decrease --
+	 ultimately, the throughput will reach a horizontal asymptote. This is because
+	 once each element has its own sublist, increasing the number of lists from
+	 here on would not have an effect on the program's performance.
+
+	 The suggestion seems to be somewhat true.
+
+Files Included in Submission lab2a-405111152.tar.gz:
+
+README:
+	This README file answering the spec's questions and detailing the included
+	files.
+
+lab2_list.c:
+	The source file for lab2_list, needs to be compiled with SortedList.c.
+
+Makefile:
+	Supports the all, tests, graphs, profile, dist, and clean targets.
+
+SortedList.h:
+	Header File given to us by the instructors, detailing what is to be
+	implemented in SortedList.c.
+
+lab2b_list.csv:
+	Comma-Separated Values -- results from "make tests".
+
+lab2b_list.gp:
+	gnuplot script that creates the 5 .png files.
+
+lab2b_1.png:
+	Graph #1.
+
+lab2b_2.png:
+	Graph #2.
+
+lab2b_3.png:
+	Graph #3.
+
+lab2b_4.png:
+	Graph #4.
+
+lab2b_5.png:
+	Graph #5.
+
+profile.out:
+	Output from the pprof tool that shows us where CPU cycles are spent in detail.
+

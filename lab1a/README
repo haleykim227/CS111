@@ -1,0 +1,22 @@
+NAME: Seungwon Kim
+EMAIL: haleykim@g.ucla.edu
+ID: 405111152
+
+Files Included in Submission lab1-405111152.tar.gz:
+
+lab1a.c:
+C source file that is compiled into an executable file "lab1a" when "make" or "make all" is run.
+One accepted option: --shell.
+One option with required argument: --shell.
+In essense, the purpose of lab1a.c is to connect the terminal with a functioning shell, redirecting inputs from both and processing characters in real-time.
+Without the --shell option, lab1a re-implements the character-by-character echo functionality.
+With the --shell option, lab1a runs an interactive shell.
+
+Makefile:
+Supports the following targets:
+all . . . builds execuable lab1a out of lab1a.c with -Wall and -Wextra options.
+clean . . . removes executable and tar.gz files.
+dist . . . builds distribution tarball.
+
+README:
+This README file summarizing the contents of the lab1a-405111152.tar.gz file.

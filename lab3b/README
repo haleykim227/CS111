@@ -1,0 +1,18 @@
+NAME: Haley Kim,Shri Narayana                                                         
+EMAIL: haleykim@g.ucla.edu,shrinikethn@ucla.edu                                       
+ID: 405111152,505313060 
+
+Files Included in Submission lab3b-405111152.tar.gz:
+
+lab3b.py:
+	This python script takes in a .csv file that describes a file system and
+	outputs to stdout the inconsistencies of the file system.
+
+Makefile:
+Supports the following targets:
+all . . . creates a lab3b link and prints out a success message.
+clean . . . removes executable and tar.gz files.
+dist . . . builds distribution tarball.
+
+README:
+	This README file summarizing the contents of the lab3b-405111152.tar.gz file.

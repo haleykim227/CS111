@@ -1,0 +1,30 @@
+NAME: Seungwon Kim
+EMAIL: haleykim@g.ucla.edu
+ID: 405111152
+
+Files Included in Submission lab0-405111152.tar.gz:
+
+lab0.c:
+C source file that is compiled into an executable file "lab0" when "make" or "make all"
+is run.
+Four accepted options: --input --output --segfault --catch.
+Two options with required arguments: --input --output.
+In essence, purpose of lab0.c is to copy from fd0 and paste to fd1, where --input
+or --ouput may be used to redirect fd0 and fd1.
+--segfault causes a segmentation fault, and --catch catches and handles the segmentation fault when used alongside the --segfault option.
+
+Makefile:
+Supports the following targets:
+all . . . builds executable lab0 out of lab0.c with -Wall and -Wextra options
+check . . . runs test cases listed by runTests
+clean . . . removes executable and tar.gz files
+dist . . . builds distribution tarball
+
+README:
+This README file summarizing the contents of the lab0-405111152.tar.gz file.
+
+backtrace.png:
+Screenshot of stack backtrace of a segmentation fault.
+
+breakpoint.png:
+Screenshot of confirmed null pointer with segmentation fault.

@@ -1,0 +1,293 @@
+Total: 925 samples
+     825  89.2%  89.2%      925 100.0% thread_work
+      18   1.9%  91.1%       18   1.9% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:204
+      15   1.6%  92.8%       15   1.6% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:203
+      13   1.4%  94.2%       13   1.4% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1734
+      11   1.2%  95.4%       64   6.9% SortedList_insert
+       9   1.0%  96.3%        9   1.0% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1734
+       7   0.8%  97.1%       36   3.9% SortedList_lookup
+       5   0.5%  97.6%        5   0.5% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:165
+       5   0.5%  98.2%        5   0.5% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:212
+       4   0.4%  98.6%        4   0.4% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1734
+       4   0.4%  99.0%        4   0.4% _init
+       3   0.3%  99.4%        3   0.3% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:206
+       2   0.2%  99.6%        2   0.2% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1733
+       2   0.2%  99.8%        2   0.2% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1734
+       1   0.1%  99.9%        1   0.1% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:205
+       1   0.1% 100.0%        1   0.1% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:211
+       0   0.0% 100.0%      925 100.0% ?? /usr/src/debug////////glibc-2.17-c758a686/misc/../sysdeps/unix/sysv/linux/x86_64/clone.S:118
+       0   0.0% 100.0%      925 100.0% start_thread
+ROUTINE ====================== thread_work in /u/cs/ugrad/seungwon/cs111/lab2b/lab2_list.c
+   825    925 Total samples (flat / cumulative)
+     .      .  111:   }
+     .      .  112:   return sum % list_arg;
+     .      .  113: }
+     .      .  114: 
+     .      .  115: // Function Called by pthread_create()
+---
+     .      .  116: void* thread_work(void* current_input) {
+     .      .  117:   // Cast and De-Reference Input
+     .      .  118:   int elements_i = *((int*)current_input);
+     .      .  119:   // Time Spent Waiting for Locks: This Thread Only
+     .      .  120:   long thread_wait = 0;
+     .      .  121:   struct timespec begin;
+     .      .  122:   struct timespec end;
+     .      .  123:   // Insertion
+     .      .  124:   for (int i = elements_i; i < elements_i + iterations_arg; i++) {
+     .      .  125:     // Mutex
+     .      .  126:     if (m_flag) {
+     .      .  127:       // record time, get lock, record time
+     .      .  128:       clock_gettime(CLOCK_MONOTONIC, &begin);
+     .      .  129:       pthread_mutex_lock(&mutex[hash_nums[i]]);
+     .      .  130:       clock_gettime(CLOCK_MONOTONIC, &end);
+     .      .  131:       thread_wait += 1000*1000*1000 * (end.tv_sec - begin.tv_sec) +
+     .      .  132: 	(end.tv_nsec - begin.tv_nsec);
+     .      .  133:       SortedList_insert(&heads[hash_nums[i]], &elements[i]);
+     .      .  134:       pthread_mutex_unlock(&mutex[hash_nums[i]]);
+     .      .  135:     }
+     .      .  136:     // Spin-Lock
+     .      .  137:     else if (s_flag) {
+     .      .  138:       // record time, get lock, record time
+     .      .  139:       clock_gettime(CLOCK_MONOTONIC, &begin);
+   488    488  140:       while(__sync_lock_test_and_set(&locks[hash_nums[i]], 1));
+     .      .  141:       clock_gettime(CLOCK_MONOTONIC, &end);
+     .      .  142:       thread_wait += 1000*1000*1000 * (end.tv_sec - begin.tv_sec) +
+     .      .  143: 	(end.tv_nsec - begin.tv_nsec);
+     .     64  144:       SortedList_insert(&heads[hash_nums[i]], &elements[i]);
+     .      .  145:       __sync_lock_release(&locks[hash_nums[i]]);
+     .      .  146:     }
+     .      .  147:     else {
+     .      .  148:       SortedList_insert(&heads[hash_nums[i]], &elements[i]);
+     .      .  149:     }
+     .      .  150:   }
+     .      .  151:   // Length
+     .      .  152:   int total_length = 0;
+     .      .  153:   for (int i = 0; i < list_arg; i++) {
+     .      .  154:     if (m_flag) {
+     .      .  155:       clock_gettime(CLOCK_MONOTONIC, &begin);
+     .      .  156:       pthread_mutex_lock(&mutex[i]);
+     .      .  157:       clock_gettime(CLOCK_MONOTONIC, &end);
+     .      .  158:       thread_wait += 1000*1000*1000 * (end.tv_sec - begin.tv_sec) +
+     .      .  159: 	(end.tv_nsec - begin.tv_nsec);
+     .      .  160:       int sub_length = SortedList_length(&heads[i]);
+     .      .  161:       total_length = total_length + sub_length;
+     .      .  162:       pthread_mutex_unlock(&mutex[i]);
+     .      .  163:     }
+     .      .  164:     else if (s_flag) {
+     .      .  165:       clock_gettime(CLOCK_MONOTONIC, &begin);
+     3      3  166:       while(__sync_lock_test_and_set(&locks[i], 1));
+     .      .  167:       clock_gettime(CLOCK_MONOTONIC, &end);
+     .      .  168:       thread_wait += 1000*1000*1000 * (end.tv_sec - begin.tv_sec) +
+     .      .  169: 	(end.tv_nsec - begin.tv_nsec);      
+     .      .  170:       int sub_length = SortedList_length(&heads[i]);
+     .      .  171:       total_length = total_length + sub_length;
+     .      .  172:       __sync_lock_release(&locks[i]);
+     .      .  173:     }
+     .      .  174:     else {
+     .      .  175:       int sub_length = SortedList_length(&heads[i]);
+     .      .  176:       total_length = total_length + sub_length;
+     .      .  177:     }
+     .      .  178:   }
+     .      .  179:   // Lookup and Delete Elements
+     .      .  180:   SortedListElement_t* inserted;
+     .      .  181:   for (int i = elements_i; i < elements_i + iterations_arg; i++) {
+     .      .  182:     if (m_flag) {
+     .      .  183:       clock_gettime(CLOCK_MONOTONIC, &begin);
+     .      .  184:       pthread_mutex_lock(&mutex[hash_nums[i]]);
+     .      .  185:       clock_gettime(CLOCK_MONOTONIC, &end);
+     .      .  186:       thread_wait += 1000*1000*1000 * (end.tv_sec - begin.tv_sec) +
+     .      .  187: 	(end.tv_nsec - begin.tv_nsec);
+     .      .  188:       inserted = SortedList_lookup(&heads[hash_nums[i]], elements[i].key);
+     .      .  189:       // Check for Inconsistencies
+     .      .  190:       if (inserted == NULL) {
+     .      .  191: 	fprintf(stderr, "Error: could not lookup element due to inconsistencies\n");
+     .      .  192: 	exit(2);
+     .      .  193:       }
+     .      .  194:       int delete_ret = SortedList_delete(inserted);
+     .      .  195:       // Check for Inconsistencies
+     .      .  196:       if (delete_ret == 1) {
+     .      .  197: 	fprintf(stderr, "Error: could not delete element due to inconsistencies\n");
+     .      .  198: 	exit(2);
+     .      .  199:       }
+     .      .  200:       pthread_mutex_unlock(&mutex[hash_nums[i]]);
+     .      .  201:     }
+     .      .  202:     else if (s_flag) {
+     .      .  203:       clock_gettime(CLOCK_MONOTONIC, &begin);
+   334    334  204:       while(__sync_lock_test_and_set(&locks[hash_nums[i]], 1));
+     .      .  205:       clock_gettime(CLOCK_MONOTONIC, &end);
+     .      .  206:       thread_wait += 1000*1000*1000 * (end.tv_sec - begin.tv_sec) +
+     .      .  207: 	(end.tv_nsec - begin.tv_nsec);
+     .     36  208:       inserted = SortedList_lookup(&heads[hash_nums[i]], elements[i].key);
+     .      .  209:       // Check for Inconsistencies
+     .      .  210:       if (inserted == NULL) {
+     .      .  211:         fprintf(stderr, "Error: could not lookup element due to inconsistencies\n");
+     .      .  212:         exit(2);
+     .      .  213:       }
+     .      .  214:       int delete_ret = SortedList_delete(inserted);
+     .      .  215:       // Check for Inconsistencies
+     .      .  216:       if (delete_ret == 1) {
+     .      .  217: 	fprintf(stderr, "Error: could not delete element due to inconsistencies\n");
+     .      .  218: 	exit(2);
+     .      .  219:       }
+     .      .  220:       __sync_lock_release(&locks[hash_nums[i]]);
+     .      .  221:     }
+     .      .  222:     else {
+     .      .  223:       inserted = SortedList_lookup(&heads[hash_nums[i]], elements[i].key);
+     .      .  224:       // Check for Inconsistencies
+     .      .  225:       if (inserted == NULL) {
+     .      .  226:         fprintf(stderr, "Error: could not lookup element due to inconsistencies\n");
+     .      .  227:         exit(2);
+     .      .  228:       }      
+     .      .  229:       int delete_ret = SortedList_delete(inserted);
+     .      .  230:       // Check for Inconsistencies
+     .      .  231:       if (delete_ret == 1) {
+     .      .  232: 	fprintf(stderr, "Error: could not delete element due to inconsistencies\n");
+     .      .  233: 	exit(2);
+     .      .  234:       }
+     .      .  235:     }
+     .      .  236:   }
+     .      .  237:   return (void*) thread_wait;
+     .      .  238: }
+---
+     .      .  239: 
+     .      .  240: // Main Routine
+     .      .  241: int main(int argc, char *argv[]) {
+     .      .  242:   signal(SIGSEGV, signal_handler);
+     .      .  243:   while (1) {
+ROUTINE ====================== thread_work in /u/cs/ugrad/seungwon/cs111/lab2b/lab2_list.c
+   825    925 Total samples (flat / cumulative)
+     .      .  111:   }
+     .      .  112:   return sum % list_arg;
+     .      .  113: }
+     .      .  114: 
+     .      .  115: // Function Called by pthread_create()
+---
+     .      .  116: void* thread_work(void* current_input) {
+     .      .  117:   // Cast and De-Reference Input
+     .      .  118:   int elements_i = *((int*)current_input);
+     .      .  119:   // Time Spent Waiting for Locks: This Thread Only
+     .      .  120:   long thread_wait = 0;
+     .      .  121:   struct timespec begin;
+     .      .  122:   struct timespec end;
+     .      .  123:   // Insertion
+     .      .  124:   for (int i = elements_i; i < elements_i + iterations_arg; i++) {
+     .      .  125:     // Mutex
+     .      .  126:     if (m_flag) {
+     .      .  127:       // record time, get lock, record time
+     .      .  128:       clock_gettime(CLOCK_MONOTONIC, &begin);
+     .      .  129:       pthread_mutex_lock(&mutex[hash_nums[i]]);
+     .      .  130:       clock_gettime(CLOCK_MONOTONIC, &end);
+     .      .  131:       thread_wait += 1000*1000*1000 * (end.tv_sec - begin.tv_sec) +
+     .      .  132: 	(end.tv_nsec - begin.tv_nsec);
+     .      .  133:       SortedList_insert(&heads[hash_nums[i]], &elements[i]);
+     .      .  134:       pthread_mutex_unlock(&mutex[hash_nums[i]]);
+     .      .  135:     }
+     .      .  136:     // Spin-Lock
+     .      .  137:     else if (s_flag) {
+     .      .  138:       // record time, get lock, record time
+     .      .  139:       clock_gettime(CLOCK_MONOTONIC, &begin);
+   488    488  140:       while(__sync_lock_test_and_set(&locks[hash_nums[i]], 1));
+     .      .  141:       clock_gettime(CLOCK_MONOTONIC, &end);
+     .      .  142:       thread_wait += 1000*1000*1000 * (end.tv_sec - begin.tv_sec) +
+     .      .  143: 	(end.tv_nsec - begin.tv_nsec);
+     .     64  144:       SortedList_insert(&heads[hash_nums[i]], &elements[i]);
+     .      .  145:       __sync_lock_release(&locks[hash_nums[i]]);
+     .      .  146:     }
+     .      .  147:     else {
+     .      .  148:       SortedList_insert(&heads[hash_nums[i]], &elements[i]);
+     .      .  149:     }
+     .      .  150:   }
+     .      .  151:   // Length
+     .      .  152:   int total_length = 0;
+     .      .  153:   for (int i = 0; i < list_arg; i++) {
+     .      .  154:     if (m_flag) {
+     .      .  155:       clock_gettime(CLOCK_MONOTONIC, &begin);
+     .      .  156:       pthread_mutex_lock(&mutex[i]);
+     .      .  157:       clock_gettime(CLOCK_MONOTONIC, &end);
+     .      .  158:       thread_wait += 1000*1000*1000 * (end.tv_sec - begin.tv_sec) +
+     .      .  159: 	(end.tv_nsec - begin.tv_nsec);
+     .      .  160:       int sub_length = SortedList_length(&heads[i]);
+     .      .  161:       total_length = total_length + sub_length;
+     .      .  162:       pthread_mutex_unlock(&mutex[i]);
+     .      .  163:     }
+     .      .  164:     else if (s_flag) {
+     .      .  165:       clock_gettime(CLOCK_MONOTONIC, &begin);
+     3      3  166:       while(__sync_lock_test_and_set(&locks[i], 1));
+     .      .  167:       clock_gettime(CLOCK_MONOTONIC, &end);
+     .      .  168:       thread_wait += 1000*1000*1000 * (end.tv_sec - begin.tv_sec) +
+     .      .  169: 	(end.tv_nsec - begin.tv_nsec);      
+     .      .  170:       int sub_length = SortedList_length(&heads[i]);
+     .      .  171:       total_length = total_length + sub_length;
+     .      .  172:       __sync_lock_release(&locks[i]);
+     .      .  173:     }
+     .      .  174:     else {
+     .      .  175:       int sub_length = SortedList_length(&heads[i]);
+     .      .  176:       total_length = total_length + sub_length;
+     .      .  177:     }
+     .      .  178:   }
+     .      .  179:   // Lookup and Delete Elements
+     .      .  180:   SortedListElement_t* inserted;
+     .      .  181:   for (int i = elements_i; i < elements_i + iterations_arg; i++) {
+     .      .  182:     if (m_flag) {
+     .      .  183:       clock_gettime(CLOCK_MONOTONIC, &begin);
+     .      .  184:       pthread_mutex_lock(&mutex[hash_nums[i]]);
+     .      .  185:       clock_gettime(CLOCK_MONOTONIC, &end);
+     .      .  186:       thread_wait += 1000*1000*1000 * (end.tv_sec - begin.tv_sec) +
+     .      .  187: 	(end.tv_nsec - begin.tv_nsec);
+     .      .  188:       inserted = SortedList_lookup(&heads[hash_nums[i]], elements[i].key);
+     .      .  189:       // Check for Inconsistencies
+     .      .  190:       if (inserted == NULL) {
+     .      .  191: 	fprintf(stderr, "Error: could not lookup element due to inconsistencies\n");
+     .      .  192: 	exit(2);
+     .      .  193:       }
+     .      .  194:       int delete_ret = SortedList_delete(inserted);
+     .      .  195:       // Check for Inconsistencies
+     .      .  196:       if (delete_ret == 1) {
+     .      .  197: 	fprintf(stderr, "Error: could not delete element due to inconsistencies\n");
+     .      .  198: 	exit(2);
+     .      .  199:       }
+     .      .  200:       pthread_mutex_unlock(&mutex[hash_nums[i]]);
+     .      .  201:     }
+     .      .  202:     else if (s_flag) {
+     .      .  203:       clock_gettime(CLOCK_MONOTONIC, &begin);
+   334    334  204:       while(__sync_lock_test_and_set(&locks[hash_nums[i]], 1));
+     .      .  205:       clock_gettime(CLOCK_MONOTONIC, &end);
+     .      .  206:       thread_wait += 1000*1000*1000 * (end.tv_sec - begin.tv_sec) +
+     .      .  207: 	(end.tv_nsec - begin.tv_nsec);
+     .     36  208:       inserted = SortedList_lookup(&heads[hash_nums[i]], elements[i].key);
+     .      .  209:       // Check for Inconsistencies
+     .      .  210:       if (inserted == NULL) {
+     .      .  211:         fprintf(stderr, "Error: could not lookup element due to inconsistencies\n");
+     .      .  212:         exit(2);
+     .      .  213:       }
+     .      .  214:       int delete_ret = SortedList_delete(inserted);
+     .      .  215:       // Check for Inconsistencies
+     .      .  216:       if (delete_ret == 1) {
+     .      .  217: 	fprintf(stderr, "Error: could not delete element due to inconsistencies\n");
+     .      .  218: 	exit(2);
+     .      .  219:       }
+     .      .  220:       __sync_lock_release(&locks[hash_nums[i]]);
+     .      .  221:     }
+     .      .  222:     else {
+     .      .  223:       inserted = SortedList_lookup(&heads[hash_nums[i]], elements[i].key);
+     .      .  224:       // Check for Inconsistencies
+     .      .  225:       if (inserted == NULL) {
+     .      .  226:         fprintf(stderr, "Error: could not lookup element due to inconsistencies\n");
+     .      .  227:         exit(2);
+     .      .  228:       }      
+     .      .  229:       int delete_ret = SortedList_delete(inserted);
+     .      .  230:       // Check for Inconsistencies
+     .      .  231:       if (delete_ret == 1) {
+     .      .  232: 	fprintf(stderr, "Error: could not delete element due to inconsistencies\n");
+     .      .  233: 	exit(2);
+     .      .  234:       }
+     .      .  235:     }
+     .      .  236:   }
+     .      .  237:   return (void*) thread_wait;
+     .      .  238: }
+---
+     .      .  239: 
+     .      .  240: // Main Routine
+     .      .  241: int main(int argc, char *argv[]) {
+     .      .  242:   signal(SIGSEGV, signal_handler);
+     .      .  243:   while (1) {

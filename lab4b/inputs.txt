@@ -1,0 +1,7 @@
+SCALE=F
+PERIOD=1
+START
+STOP
+LOG test
+OFF
+

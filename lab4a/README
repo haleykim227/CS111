@@ -1,0 +1,31 @@
+NAME: Seungwon Kim
+EMAIL: haleykim@g.ucla.edu
+ID: 405111152
+
+BeagleBone Serial Number:
+S/N: BBGW19010496
+MAC: 2CF7F106A1C4
+Model: WL18MODGB
+FCC ID: Z64-WL18SBMOD
+IC: 451I-WL18SBMOD
+LTC: 81W4KEC
+
+Wifi Address:
+ether f0:45:da:eb:b3:40
+
+Files Included in Submission lab4a-405111152.tar.gz:
+
+my_beaglebone.png:
+Selfie of myself and my assembled BeagleBone
+
+connected.png:
+Screenshot of output of command "ifconfig" showing BeagleBone's changed hostname and connection to Wifi.
+
+copy.png:
+Screenshot of FileZilla showing the move of hello_world.c from my personal computer's Desktop to BeagleBone's debian.
+
+build_run.png:
+Screenshot of building and running of a simple HelloWorld program on debian.
+
+git.png:
+Screenshot of cloning my own CS31 github repo onto root user of BeagleBone.
